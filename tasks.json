@@ -1,1 +1,1 @@
-[{"id":1,"task":"buy fruits","status":"done"}]
+[{"id":1,"task":"buy fruits","status":"done"},{"id":2,"task":"hello","status":"in-progress"},{"id":3,"task":"Hello Java","status":"todo"}]

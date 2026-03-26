@@ -6,8 +6,6 @@ public class Task {
     private String task;
     private TaskStatus status;
 
-    public static Long currentID = 1L;
-
     public Task(String task) {
         this.task = task;
         this.status = TaskStatus.TODO;

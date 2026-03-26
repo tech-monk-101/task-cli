@@ -1,18 +1,31 @@
 package com.techmonk.repository;
-
 import com.techmonk.entity.Task;
-import com.techmonk.entity.TaskStatus;
+import util.JSONParser;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class TaskRepository {
-    private final Map<Long, Task> tasks = new ConcurrentHashMap<>();
+    public static Long currentID = 1L;
 
-    public void save(Task task) {
-        tasks.put(task.getId(), task);
+    private final Map<Long, Task> tasks = new HashMap<>();
+
+    public TaskRepository() {
+        loadJSON();
     }
 
+    public void save(Task task) {
+        if(task.getId() == null) {
+            task.setId(currentID);
+            currentID += 1;
+        }
+        tasks.put(task.getId(), task);
+        saveJSON();
+    }
     public Task getTaskById(Long id) {
         if(tasks.containsKey(id))
             return tasks.get(id);
@@ -21,23 +34,58 @@ public class TaskRepository {
 
     public void deleteTaskById(Long id) {
         tasks.remove(id);
-    }
-
-    public void markInProgress(Long id) {
-        updateStatus(id, TaskStatus.IN_PROGRESS);
-    }
-
-    public void markDone(Long id) {
-        updateStatus(id, TaskStatus.DONE);
-    }
-
-    private void updateStatus(Long id, TaskStatus status) {
-        if(tasks.containsKey(id)) {
-            tasks.get(id).setStatus(status);
-        }
+        saveJSON();
     }
 
     public List<Task> getAllTasks() {
         return new ArrayList<>(tasks.values());
+    }
+
+    private void loadJSON() {
+        try {
+            File Obj = new File("tasks.json");
+            if (!Obj.exists()) {
+                return;
+            }
+            Scanner Reader = new Scanner(Obj);
+            StringBuilder buffer = new StringBuilder();
+
+            while (Reader.hasNextLine()) {
+                buffer.append(Reader.nextLine());
+            }
+
+            String data = buffer.toString();
+            Reader.close();
+
+            List<Task> tasklist = JSONParser.parseJSON(data);
+            for (Task task : tasklist) {
+                save(task);
+                currentID = Math.max(currentID, task.getId() + 1);
+            }
+
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void saveJSON() {
+        String data = JSONParser.toJSON(getAllTasks());
+
+        String fileName = "tasks.json";
+
+        Path path = Paths.get(fileName);
+        if (Files.notExists(path)) {
+            try {
+                Files.writeString(path, "[]", StandardOpenOption.CREATE);
+            } catch (IOException e) {
+                throw new RuntimeException("Could not create " + fileName, e);
+            }
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            writer.write(data);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -1,4 +1,4 @@
-package utils;
+package util;
 
 import com.techmonk.entity.Task;
 import com.techmonk.entity.TaskStatus;

@@ -22,10 +22,7 @@ public class TaskController {
     }
 
     public void list(String status) {
-        if(status.isEmpty())
-            taskService.listAllTasks();
-        else
-            taskService.listTasksByStatus(status);
+        taskService.listTasks(status);
     }
 
     public void markInProgress(Long id) {
@@ -34,13 +31,5 @@ public class TaskController {
 
     public void markDone(Long id) {
         taskService.markDone(id);
-    }
-
-    public void loadTasks() {
-        taskService.loadJSON();
-    }
-
-    public void saveTasks() {
-        taskService.saveJSON();
     }
 }
