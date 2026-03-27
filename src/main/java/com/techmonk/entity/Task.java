@@ -34,4 +34,12 @@ public class Task {
     public void setStatus(TaskStatus status) {
         this.status = status;
     }
+
+    @Override
+    public String toString() {
+        return String.format("#%d - [ %11s ] %s",
+                id,
+                status.toString().toUpperCase(),
+                task);
+    }
 }

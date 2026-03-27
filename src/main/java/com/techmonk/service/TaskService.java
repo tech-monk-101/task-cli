@@ -16,9 +16,10 @@ public class TaskService {
     }
 
     //CREATE
-    public void addTask(String info) {
+    public Task addTask(String info) {
         Task task = new Task(info);
         taskRepository.save(task);
+        return task;
     }
 
     //READ
@@ -34,27 +35,30 @@ public class TaskService {
     }
 
     //UPDATE
-    public void updateTask(Long id, String info) {
+    public Task updateTask(Long id, String info) {
         Task task = taskRepository.getTaskById(id);
         if (task == null)
             throw new TaskNotFoundException(id);
         task.setTask(info);
         taskRepository.save(task);
+        return task;
     }
 
-    public void updateTaskStatus(Long id, TaskStatus status) {
+    public Task updateTaskStatus(Long id, TaskStatus status) {
         Task task = taskRepository.getTaskById(id);
         if (task == null)
             throw new TaskNotFoundException(id);
         task.setStatus(status);
         taskRepository.save(task);
+        return task;
     }
 
     //DELETE
-    public void deleteTask(Long id) {
+    public Task deleteTask(Long id) {
         Task task = taskRepository.getTaskById(id);
         if (task == null)
             throw new TaskNotFoundException(id);
         taskRepository.deleteTaskById(id);
+        return task;
     }
 }
