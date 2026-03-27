@@ -21,7 +21,7 @@ public class TaskCLI {
         switch (args[0]) {
             case "add" -> {
                 if (args.length < 2) {
-                    System.out.println("Usage: add <task description>");
+                    printUsage();
                 } else {
                     controller.add(args[1]);
                 }
@@ -71,7 +71,7 @@ public class TaskCLI {
 
     private void parseIdAndRun(String[] args, BiConsumer<Long, String> action) {
         if (args.length < 2) {
-            System.out.println("Missing task ID.");
+            printUsage();
             return;
         }
 

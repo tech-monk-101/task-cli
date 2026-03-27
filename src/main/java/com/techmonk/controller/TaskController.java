@@ -2,6 +2,7 @@ package com.techmonk.controller;
 
 import com.techmonk.entity.Task;
 import com.techmonk.entity.TaskStatus;
+import com.techmonk.exception.BlankTaskException;
 import com.techmonk.exception.EmptyCollectionException;
 import com.techmonk.service.TaskService;
 
@@ -20,6 +21,8 @@ public class TaskController {
     }
 
     public void update(Long id, String info) {
+        if(info.isEmpty())
+            throw new BlankTaskException();
         Task task = taskService.updateTask(id, info);
         System.out.println("[ TASK UPDATED ] : " + task.toString());
     }
