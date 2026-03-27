@@ -6,8 +6,11 @@ public class GlobalExceptionHandler implements Thread.UncaughtExceptionHandler {
         if (e instanceof TaskNotFoundException) {
             System.out.println("ERROR : " + e.getMessage());
         }
-        if(e instanceof EmptyCollectionException) {
+        else if(e instanceof EmptyCollectionException || e instanceof InvalidTaskStatusException) {
             System.out.println(e.getMessage());
+        }
+        else {
+            System.out.println("UNKNOWN EXCEPTION OCCURRED: " + e.getMessage());
         }
     }
 }

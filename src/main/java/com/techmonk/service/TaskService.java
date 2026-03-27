@@ -2,6 +2,7 @@ package com.techmonk.service;
 
 import com.techmonk.entity.Task;
 import com.techmonk.entity.TaskStatus;
+import com.techmonk.exception.InvalidTaskStatusException;
 import com.techmonk.exception.TaskNotFoundException;
 import com.techmonk.repository.TaskRepository;
 
@@ -28,10 +29,14 @@ public class TaskService {
     }
 
     public List<Task> listTasksByStatus(String status) {
-        return taskRepository.getAllTasks()
-                .stream()
-                .filter(t -> t.getStatus().toString().equals(status)).toList();
-
+        try {
+            TaskStatus taskStatus = TaskStatus.valueOf(status.toUpperCase().replace("-", "_"));
+            return taskRepository.getAllTasks()
+                    .stream()
+                    .filter(t -> t.getStatus().equals(taskStatus)).toList();
+        } catch (IllegalArgumentException e) {
+            throw new InvalidTaskStatusException(status);
+        }
     }
 
     //UPDATE

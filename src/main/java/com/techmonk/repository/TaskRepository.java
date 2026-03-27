@@ -43,7 +43,7 @@ public class TaskRepository {
 
     private void loadJSON() {
         try {
-            File Obj = new File("tasks.json");
+            File Obj = new File(getFilePath());
             if (!Obj.exists()) {
                 return;
             }
@@ -71,7 +71,7 @@ public class TaskRepository {
     private void saveJSON() {
         String data = JSONParser.toJSON(getAllTasks());
 
-        String fileName = "tasks.json";
+        String fileName = getFilePath();
 
         Path path = Paths.get(fileName);
         if (Files.notExists(path)) {
@@ -86,6 +86,22 @@ public class TaskRepository {
             writer.write(data);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private String getFilePath() {
+        try {
+            String jarDir = new File(
+                    TaskRepository.class
+                            .getProtectionDomain()
+                            .getCodeSource()
+                            .getLocation()
+                            .toURI()
+            ).getParent();
+
+            return Paths.get(jarDir, "tasks.json").toString();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to resolve app directory", e);
         }
     }
 }
