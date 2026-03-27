@@ -1,6 +1,10 @@
 package com.techmonk.controller;
 
+import com.techmonk.entity.Task;
+import com.techmonk.entity.TaskStatus;
 import com.techmonk.service.TaskService;
+
+import java.util.List;
 
 public class TaskController {
     private final TaskService taskService;
@@ -22,14 +26,21 @@ public class TaskController {
     }
 
     public void list(String status) {
-        taskService.listTasks(status);
+        List<Task> tasks;
+        if(status.isEmpty())
+            tasks = taskService.listAllTasks();
+        else
+            tasks = taskService.listTasksByStatus(status);
+
+        for(Task t: tasks)
+            System.out.printf("#%d - [ %11s ] %s %n", t.getId(), t.getStatus().toString().toUpperCase(), t.getTask());
     }
 
     public void markInProgress(Long id) {
-        taskService.markInProgress(id);
+        taskService.updateTaskStatus(id, TaskStatus.IN_PROGRESS);
     }
 
     public void markDone(Long id) {
-        taskService.markDone(id);
+        taskService.updateTaskStatus(id, TaskStatus.DONE);
     }
 }

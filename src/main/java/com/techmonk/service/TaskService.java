@@ -2,7 +2,10 @@ package com.techmonk.service;
 
 import com.techmonk.entity.Task;
 import com.techmonk.entity.TaskStatus;
+import com.techmonk.exception.TaskNotFoundException;
 import com.techmonk.repository.TaskRepository;
+
+import java.util.List;
 
 
 public class TaskService {
@@ -19,51 +22,39 @@ public class TaskService {
     }
 
     //READ
-    private void printTask(Task t) {
-        System.out.printf("ID: %d Task: %s Status: %s%n", t.getId(), t.getTask(), t.getStatus());
+    public List<Task> listAllTasks() {
+        return taskRepository.getAllTasks();
     }
 
-    public void listTasks(String status) {
-        if (status.isEmpty()) {
-            taskRepository.getAllTasks().forEach(this::printTask);
-        } else {
-            taskRepository.getAllTasks()
-                    .stream()
-                    .filter(t -> t.getStatus().toString().equals(status))
-                    .forEach(this::printTask);
-        }
+    public List<Task> listTasksByStatus(String status) {
+        return taskRepository.getAllTasks()
+                .stream()
+                .filter(t -> t.getStatus().toString().equals(status)).toList();
+
     }
 
     //UPDATE
     public void updateTask(Long id, String info) {
         Task task = taskRepository.getTaskById(id);
-        if(task != null) {
-            task.setTask(info);
-            taskRepository.save(task);
-        }
+        if (task == null)
+            throw new TaskNotFoundException(id);
+        task.setTask(info);
+        taskRepository.save(task);
     }
 
-    public void markInProgress(Long id) {
+    public void updateTaskStatus(Long id, TaskStatus status) {
         Task task = taskRepository.getTaskById(id);
-        if(task != null) {
-            task.setStatus(TaskStatus.IN_PROGRESS);
-            taskRepository.save(task);
-        }
+        if (task == null)
+            throw new TaskNotFoundException(id);
+        task.setStatus(status);
+        taskRepository.save(task);
     }
-
-    public void markDone(Long id) {
-        Task task = taskRepository.getTaskById(id);
-        if(task != null) {
-            task.setStatus(TaskStatus.DONE);
-            taskRepository.save(task);
-        }
-    }
-
 
     //DELETE
     public void deleteTask(Long id) {
         Task task = taskRepository.getTaskById(id);
-        if(task != null)
-            taskRepository.deleteTaskById(id);
+        if (task == null)
+            throw new TaskNotFoundException(id);
+        taskRepository.deleteTaskById(id);
     }
 }
