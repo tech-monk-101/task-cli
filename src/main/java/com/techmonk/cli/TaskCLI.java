@@ -1,8 +1,9 @@
 package com.techmonk.cli;
 
 import com.techmonk.controller.TaskController;
+import com.techmonk.entity.Command;
 
-import java.util.function.BiConsumer;
+import java.util.Objects;
 
 public class TaskCLI {
 
@@ -13,74 +14,62 @@ public class TaskCLI {
     }
 
     public void run(String[] args) {
-        if (args.length < 1) {
-            printUsage();
-            return;
+        if (args.length < 1 || Objects.equals(args[0], "-h") || Objects.equals(args[0], "--help")) {
+            throw new IllegalArgumentException();
         }
 
-        switch (args[0]) {
-            case "add" -> {
+        Command command = Command.from(args[0]);
+
+        switch (command) {
+            case ADD -> {
                 if (args.length < 2) {
-                    printUsage();
+                    System.out.println("USAGE : add <task> ");
                 } else {
                     controller.add(args[1]);
                 }
             }
 
-            case "update" -> {
-                parseIdAndRun(args, controller::update);
-            }
-
-            case "delete" -> {
-                parseIdAndRun(args, (id, ignored) -> controller.delete(id));
-            }
-
-            case "mark-in-progress" -> {
-                parseIdAndRun(args, (id, ignored) -> controller.markInProgress(id));
-            }
-
-            case "mark-done" -> {
-                parseIdAndRun(args, (id, ignored) -> controller.markDone(id));
-            }
-
-            case "list" -> {
-                if (args.length == 1) {
-                    controller.list("");
+            case UPDATE -> {
+                if (args.length < 3) {
+                    System.out.println("USAGE : update <id> <new-task>");
                 } else {
-                    controller.list(args[1]);
+                    controller.update(parseID(args[1]), args[2]);
                 }
             }
 
-            default -> {
-                System.out.println("Unknown command: " + args[0]);
-                printUsage();
+            case DELETE -> {
+                if (args.length < 2) {
+                    System.out.println("USAGE : delete <id>");
+                } else {
+                    controller.delete(parseID(args[1]));
+                }
             }
+
+            case MARK_IN_PROGRESS -> {
+                if (args.length < 2) {
+                    System.out.println("USAGE : mark-in-progress <id>");
+                } else {
+                    controller.markInProgress(parseID(args[1]));
+                }
+            }
+
+            case MARK_DONE -> {
+                if (args.length < 2) {
+                    System.out.println("USAGE : mark-done <id>");
+                } else {
+                    controller.markDone(parseID(args[1]));
+                }
+            }
+
+            case LIST -> controller.list(args.length > 1 ? args[1] : "");
+
         }
     }
 
-    private void printUsage() {
-        System.out.println("Usage:");
-        System.out.println("  add <task>                         Add a new task");
-        System.out.println("  update <id> <new-task>            Update task text by ID");
-        System.out.println("  delete <id>                        Delete task by ID");
-        System.out.println("  mark-in-progress <id>             Mark task as in-progress");
-        System.out.println("  mark-done <id>                    Mark task as done");
-        System.out.println("  list                               List all tasks");
-        System.out.println("  list <status>                      List tasks by status (todo|in-progress|done)");
-    }
-
-    private void parseIdAndRun(String[] args, BiConsumer<Long, String> action) {
-        if (args.length < 2) {
-            printUsage();
-            return;
-        }
-
-        try {
-            long id = Long.parseLong(args[1]);
-            String info =  args.length > 2 ? args[2] : "";
-            action.accept(id, info);
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid ID: " + args[1]);
-        }
+    private long parseID(String arg) {
+        long id = Long.parseLong(arg);
+        if (id < 1L)
+            throw new NumberFormatException();
+        return id;
     }
 }
